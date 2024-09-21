@@ -1,4 +1,5 @@
 --Полная база, локально.
+--Заданные задачи внизу.
 --1) Вывести список фильмов для каждого актера. (dvdrental)
 select distinct first_name
 ,last_name la
@@ -46,8 +47,20 @@ group by f.departure_airport
 ,f.arrival_airport
 --,ad.city, ad1.city
 
+--4) Получить список пассажиров рейса  27584 с местами, которые им были назначены в салоне самолета. (demo)
+select
+distinct
+t.passenger_name
+,bp.seat_no
+from flights f
+join ticket_flights tf on f.flight_id = tf.flight_id
+join boarding_passes bp on tf.flight_id = bp.flight_id and tf.ticket_no = bp.ticket_no
+join tickets t on tf.ticket_no = t.ticket_no
+where f.flight_id = 27584
+--39 строк
 
---*Выявить те направления, на которые не было продано ни одного билета. (demo, flights_v)
+--Было задано:
+--3)*Выявить те направления, на которые не было продано ни одного билета. (demo, flights_v)
 select
 f.departure_airport
 ,f.arrival_airport
