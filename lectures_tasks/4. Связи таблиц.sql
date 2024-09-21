@@ -63,8 +63,8 @@ where f.flight_id = 27584
 --3)*Выявить те направления, на которые не было продано ни одного билета. (demo, flights_v)
 select
 distinct
-fv.departure_airport
-,fv.arrival_airport
+fv.departure_city
+,fv.arrival_city
 from flights_v fv
 left join ticket_flights tf on fv.flight_id = tf.flight_id
 where tf.flight_id is null
