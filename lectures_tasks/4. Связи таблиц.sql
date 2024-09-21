@@ -62,10 +62,11 @@ where f.flight_id = 27584
 --Было задано:
 --3)*Выявить те направления, на которые не было продано ни одного билета. (demo, flights_v)
 select
-f.departure_airport
-,f.arrival_airport
-from flights f
-left join ticket_flights tf on f.flight_id = tf.flight_id
+distinct
+fv.departure_airport
+,fv.arrival_airport
+from flights_v fv
+left join ticket_flights tf on fv.flight_id = tf.flight_id
 where tf.flight_id is null
 
 --5) Можно предложить другой вариант, в котором используется одна из операций над
