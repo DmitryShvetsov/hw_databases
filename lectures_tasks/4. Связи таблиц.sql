@@ -68,6 +68,7 @@ fv.departure_city
 from flights_v fv
 left join ticket_flights tf on fv.flight_id = tf.flight_id
 where tf.flight_id is null
+--Ответ: 463 строчки
 --ВОПРОС ЗАЛУ: как подтянуть названия городов из таблицы airports_data, если бы вместо flights_v использовалась flights.
 -- Видимо надо сджойнить по airport_code, но как?
 
@@ -81,5 +82,4 @@ select
 distinct arrival_city
 from routes r
 where departure_city = 'Москва'
-
-
+-- Ответ как и в 1 запросе 20 строк.
