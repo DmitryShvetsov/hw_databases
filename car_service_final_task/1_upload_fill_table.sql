@@ -1,4 +1,10 @@
--- Создаю базу данных локально.
+--  PostgreSQL 15.5
+-- Здесь загрузка БД и заполнение полей.
+-- Запросы update по заполнению пустых значений однотипные, все можно не просматривать.
+-- До нормалзации у одного pin бывает до 12 card.
+
+-- Создаю базу данных локально. ОС: Убунту.
+psql
 create database car_service owner=postgres;
 -- Устанавливаю пароль
 \password postgres;
@@ -34,7 +40,7 @@ date timestamp
 -- Проверяю, что связка email-имя уникальна. Т.е. у одного email только одно имя (либо пусто).
 select email, count(distinct name) count_name
 from all_data ad
-where name != ''
+where name != '' and name is not null
 group by 1 order by 2 desc
 
 -- На всякий случай создал копию исходной таблицы.
@@ -145,7 +151,34 @@ and pin != '' and pin is not null
 where (ad.date = subquery.date and ad.email = subquery.email and ad.payment = subquery.payment)
 and (ad.pin is null or ad.pin = '')
 
--- Обновляю service_addr по w_name. Также по
+-- Заполняю service_addr по w_name. Также дополняю по w_phone.
+-- Заполняю service по w_phone, потом по w_name.
+-- Заполняю w_name по w_phone.
+-- Заполняю w_exp по w_name. w_phone по w_name. wages по w_name.
+-- Заполняю card по date, email, payment. По date, payment.
 
+-- Как полностью заполнить card я не нашел, т.к. даже по одной покупке (pin) бывает до 12 карт:
+select pin, count(distinct card) cnt
+from all_data ad
+where pin != '' and pin is not null
+and card != '' and card is not null
+group by 1 order by 2 desc
+
+-- Заполняю payment по date, vin, pin. Но как было 31005 пустых, так и осталось.
+
+-- Все pin восстановить не удалось, т.к. они не уникальны в разрезе date, name, vin, w_name
+select date, name, vin, w_name, count(distinct pin) cnt
+from all_data ad
+where date is not null
+and pin != '' and pin is not null
+and name is not null and name != ''
+and vin is not null and vin != ''
+and w_name is not null and w_name != ''
+group by 1,2,3,4 order by 5 desc
+
+-- Заполнил mileage по date, pin, vin. Правда с null как было 10425, так и осталось.
+-- Заполнение card по date, name, pin, card не снизило число null.
+
+-- Итого полностью не заполнились: card, payment (считаем за неудачные оплаты), pin, mileage.
 
 -- Схема БД: https://drawdb.vercel.app/editor?shareId=74a1aef3778dd69752bc7b943428fc78
