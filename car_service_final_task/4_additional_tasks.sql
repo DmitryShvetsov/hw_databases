@@ -60,5 +60,27 @@ limit 3
 ) subquery
 where workers.worker_id = subquery.worker_id
 
--- Сделать представление для директора: филиал, количество заказов за последний месяц,
+-- 3. Сделать представление для директора: филиал, количество заказов за последний месяц,
 -- заработанная сумма, заработанная сумма за вычетом зарплат
+create view last_month_performancce as
+with t_last_month as (
+select
+DATE_TRUNC('month', date) last_month
+from orders
+order by 1 desc limit 1 offset 1
+)
+select
+tlm.last_month
+,s.service
+,count(o.order_id) orders_amount
+,sum(o.payment) revenue
+,sum(o.payment) - sum(wages) profit
+from orders o
+join t_last_month tlm on tlm.last_month = DATE_TRUNC('month', date)
+join workers w using(worker_id)
+join services s using(service_id)
+group by 1,2
+
+-- 4. Сделать рейтинг самых надежных и ненадежных авто
+
+
