@@ -81,6 +81,81 @@ join workers w using(worker_id)
 join services s using(service_id)
 group by 1,2
 
--- 4. Сделать рейтинг самых надежных и ненадежных авто
+-- 4. Сделать рейтинг самых надежных и ненадежных авто.
+-- Будем считать относительно пробега, т.е. сколько миль пробега приходится на 1 ремонт.
+-- Чем больше - тем надежнее.
+
+-- Три самых надежных (больше всех миль на 1 км. пробега).
+with orders_data as (
+select
+o.car_id
+,c.car
+,c.vin
+,max(o.mileage) mileage
+,count(o.order_id) orders_amount
+from orders o
+join cars c using(car_id)
+group by 1,2,3)
+select
+car
+,sum(mileage) / sum(orders_amount) reliability
+from orders_data
+group by 1 order by 2 desc limit 3
 
 
+-- Три самых ненадежных (меньше всех миль на 1 км. пробега).
+with orders_data as (
+select
+o.car_id
+,c.car
+,c.vin
+,max(o.mileage) mileage
+,count(o.order_id) orders_amount
+from orders o
+join cars c using(car_id)
+group by 1,2,3)
+select
+car
+,sum(mileage) / sum(orders_amount) reliability
+from orders_data
+group by 1 order by 2 limit 3
+
+-- 5. Самый "удачный" цвет для каждой модели авто.
+-- Найдем цвета, которые реже всего приезжают в сервис.
+with cars_orders_amount as (
+select
+c.car
+,colors.color
+,count(o.order_id) orders_amount
+from orders o
+join cars c using(car_id)
+join colors on c.color_id = colors.color_id
+group by 1,2
+)
+, cars_luck as (
+select *
+,row_number() OVER (PARTITION BY
+car ORDER BY orders_amount)
+from cars_orders_amount
+)
+select car, color from cars_luck where row_number = 1
+
+
+-- Первичный ключ в виде автоинкрементного столбца уже добавлен.
+-- Построить связи между таблицами: см. снимок схемы БД 3ТА из DBeaver.
+-- Добавить в каждую таблицу индекс хотя бы одному столбцу.
+CREATE UNIQUE INDEX color_id_indx ON colors (color_id);
+
+CREATE UNIQUE INDEX discount_id_indx ON discounts (discount_id);
+
+CREATE INDEX car_indx ON cars (car);
+
+CREATE INDEX email_indx ON clients (email);
+
+create unique INDEX card_id_indx ON cards (card_id);
+
+create INDEX service_indx ON services (service);
+
+create INDEX wages_indx ON workers (wages);
+
+create INDEX dates_indx ON orders (date);
