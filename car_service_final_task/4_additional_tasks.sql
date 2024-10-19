@@ -159,3 +159,7 @@ create INDEX service_indx ON services (service);
 create INDEX wages_indx ON workers (wages);
 
 create INDEX dates_indx ON orders (date);
+
+-- Сохраняю дамп.
+sudo -i -u postgres
+pg_dump car_service --format=t | gzip > /var/lib/postgresql/postgres_15_5_ad2e0f01-e82d-4007-9af1-2cf6ad65a5b2.tar;
